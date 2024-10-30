@@ -51,6 +51,7 @@ func handleTemperature(w http.ResponseWriter, r *http.Request) {
 			http.StatusMethodNotAllowed,
 			"Método não permitido",
 		)
+		return
 	}
 
 	cep := r.URL.Path[len("/temperatura/"):]
@@ -105,7 +106,7 @@ func getLocationByCEP(cep string) (string, error) {
 	}
 
 	if viaCEPResp.Erro {
-		return "", fmt.Errorf("CEP not found")
+		return "", fmt.Errorf("CEP não encontrado")
 	}
 
 	return fmt.Sprintf("%s,%s", viaCEPResp.Localidade, viaCEPResp.UF), nil
