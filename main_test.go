@@ -10,27 +10,37 @@ import (
 func TestHandleTemperature(t *testing.T) {
 	tests := []struct {
 		name           string
+		method         string
 		cep            string
 		expectedStatus int
 		expectedError  string
 	}{
 		{
+			name:           "Método inválido",
+			method:         http.MethodPost,
+			cep:            "12345678",
+			expectedStatus: http.StatusMethodNotAllowed,
+			expectedError:  "Método não permitido",
+		},
+		{
 			name:           "Formato inválido para o CEP",
+			method:         http.MethodPost,
 			cep:            "123",
 			expectedStatus: http.StatusUnprocessableEntity,
 			expectedError:  "CEP inválido",
 		},
 		{
 			name:           "CEP Não existe",
+			method:         http.MethodPost,
 			cep:            "99999999",
 			expectedStatus: http.StatusNotFound,
-			expectedError:  "CEP Não encontrado",
+			expectedError:  "CEP não encontrado",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req, err := http.NewRequest("GET", "/temperature/"+tt.cep, nil)
+			req, err := http.NewRequest("GET", "/temperatura/"+tt.cep, nil)
 			if err != nil {
 				t.Fatal(err)
 			}
