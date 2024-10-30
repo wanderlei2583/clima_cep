@@ -7,7 +7,33 @@ import (
 	"testing"
 )
 
+func setupMockViaCEP() *httptest.Server {
+	return httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			cep := r.URL.Path[len("/ws/"):]
+			cep = cep[:8]
+
+			w.Header().Set("Content-Type", "application/json")
+
+			if cep == "99999999" {
+				json.NewEncoder(w).Encode(ViaCEPResponse{Erro: true})
+				return
+			}
+
+			json.NewEncoder(w).Encode(ViaCEPResponse{
+				CEP:        "12345678",
+				Localidade: "São Paulo",
+				UF:         "SP",
+				Erro:       false,
+			})
+		}),
+	)
+}
+
 func TestHandleTemperature(t *testing.T) {
+	mockServer := setupMockViaCEP()
+	defer mockServer.Close()
+
 	tests := []struct {
 		name           string
 		method         string
@@ -40,7 +66,7 @@ func TestHandleTemperature(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req, err := http.NewRequest("GET", "/temperatura/"+tt.cep, nil)
+			req, err := http.NewRequest(tt.method, "/temperatura/"+tt.cep, nil)
 			if err != nil {
 				t.Fatal(err)
 			}
