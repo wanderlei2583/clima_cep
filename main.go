@@ -63,7 +63,15 @@ func handleTemperature(w http.ResponseWriter, r *http.Request) {
 
 	location, err := getLocationByCEP(cep)
 	if err != nil {
-		respondWithError(w, http.StatusNotFound, "CEP não encontrado")
+		if err.Error() == "CEP não encontrado" {
+			respondWithError(w, http.StatusNotFound, "CEP não encontrado")
+			return
+		}
+		respondWithError(
+			w,
+			http.StatusInternalServerError,
+			"Erro ao consultar CEP",
+		)
 		return
 	}
 
@@ -105,7 +113,7 @@ func getLocationByCEP(cep string) (string, error) {
 		return "", err
 	}
 
-	if viaCEPResp.Erro {
+	if viaCEPResp.Erro || viaCEPResp.CEP == "" {
 		return "", fmt.Errorf("CEP não encontrado")
 	}
 
