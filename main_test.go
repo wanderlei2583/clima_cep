@@ -15,16 +15,16 @@ func TestHandleTemperature(t *testing.T) {
 		expectedError  string
 	}{
 		{
-			name:           "Formato invalido para o CEP",
+			name:           "Formato inválido para o CEP",
 			cep:            "123",
 			expectedStatus: http.StatusUnprocessableEntity,
-			expectedError:  "CEP invalido",
+			expectedError:  "CEP inválido",
 		},
 		{
 			name:           "CEP Não existe",
 			cep:            "99999999",
 			expectedStatus: http.StatusNotFound,
-			expectedError:  "CEP Não encontrado.",
+			expectedError:  "CEP Não encontrado",
 		},
 	}
 
