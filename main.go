@@ -60,7 +60,15 @@ func handleTemperature(w http.ResponseWriter, r *http.Request) {
 
 	location, err := getLocationByCEP(cep)
 	if err != nil {
-		respondWithError(w, http.StatusNotFound, "CEP nao encontrado")
+		if err == ErrCEPNotFound {
+			respondWithError(w, http.StatusNotFound, "CEP nao encontrado")
+			return
+		}
+		respondWithError(
+			w,
+			http.StatusInternalServerError,
+			"erro ao obter localidade",
+		)
 		return
 	}
 
@@ -89,23 +97,26 @@ func isValidCEP(cep string) bool {
 	return matched
 }
 
-var viaCEPBaseURL = "https://viacep.com.br"
+var (
+	ErrCEPNotFound = fmt.Errorf("CEP nao encontrado")
+	viaCEPBaseURL  = "https://viacep.com.br"
+)
 
 func getLocationByCEP(cep string) (string, error) {
 	url := fmt.Sprintf("%s/ws/%s/json/", viaCEPBaseURL, cep)
 	resp, err := http.Get(url)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Erro ao consultar API: %v", err)
 	}
 	defer resp.Body.Close()
 
 	var viaCEPResp ViaCEPResponse
 	if err := json.NewDecoder(resp.Body).Decode(&viaCEPResp); err != nil {
-		return "", err
+		return "", fmt.Errorf("Erro ao decodificar resposta: %v", err)
 	}
 
-	if viaCEPResp.Erro {
-		return "", fmt.Errorf("CEP nao encontrado")
+	if viaCEPResp.Erro || viaCEPResp.Localidade == "" {
+		return "", ErrCEPNotFound
 	}
 
 	return fmt.Sprintf("%s,%s", viaCEPResp.Localidade, viaCEPResp.UF), nil
