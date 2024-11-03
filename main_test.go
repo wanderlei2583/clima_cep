@@ -15,13 +15,13 @@ func TestHandleTemperature(t *testing.T) {
 			cep = strings.TrimSuffix(cep, "/json/")
 
 			switch cep {
-			case "11111111":
+			case "99999999":
 				json.NewEncoder(w).Encode(ViaCEPResponse{Erro: true})
-			case "01001000":
+			case "68445000":
 				json.NewEncoder(w).Encode(ViaCEPResponse{
-					CEP:        "01001000",
-					Localidade: "São Paulo",
-					UF:         "SP",
+					CEP:        "68445000",
+					Localidade: "Barcarena",
+					UF:         "PA",
 				})
 			default:
 				http.Error(w, "Not found", http.StatusNotFound)
@@ -54,7 +54,7 @@ func TestHandleTemperature(t *testing.T) {
 		},
 		{
 			name:           "Valid CEP",
-			cep:            "01001000",
+			cep:            "68445000",
 			expectedStatus: http.StatusOK,
 			expectedError:  "",
 		},
