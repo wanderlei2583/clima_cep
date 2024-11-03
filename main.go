@@ -37,8 +37,9 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+
 	http.HandleFunc("/temperatura/", handleTemperature)
-	log.Printf("Server starting on port %s", port)
+	log.Printf("Servidor iniciado na port: %s", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
@@ -46,32 +47,20 @@ func main() {
 
 func handleTemperature(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		respondWithError(
-			w,
-			http.StatusMethodNotAllowed,
-			"Método não permitido",
-		)
+		respondWithError(w, http.StatusMethodNotAllowed, "metodo nao permitido")
 		return
 	}
 
 	cep := r.URL.Path[len("/temperatura/"):]
 
 	if !isValidCEP(cep) {
-		respondWithError(w, http.StatusUnprocessableEntity, "CEP inválido")
+		respondWithError(w, http.StatusUnprocessableEntity, "CEP invalido")
 		return
 	}
 
 	location, err := getLocationByCEP(cep)
 	if err != nil {
-		if err.Error() == "CEP não encontrado" {
-			respondWithError(w, http.StatusNotFound, "CEP não encontrado")
-			return
-		}
-		respondWithError(
-			w,
-			http.StatusInternalServerError,
-			"Erro ao consultar CEP",
-		)
+		respondWithError(w, http.StatusNotFound, "CEP nao encontrado")
 		return
 	}
 
@@ -80,7 +69,7 @@ func handleTemperature(w http.ResponseWriter, r *http.Request) {
 		respondWithError(
 			w,
 			http.StatusInternalServerError,
-			"Erro ao obter temperatura",
+			"erro ao obter temperatura",
 		)
 		return
 	}
@@ -100,8 +89,10 @@ func isValidCEP(cep string) bool {
 	return matched
 }
 
+var viaCEPBaseURL = "https://viacep.com.br"
+
 func getLocationByCEP(cep string) (string, error) {
-	url := fmt.Sprintf("https://viacep.com.br/ws/%s/json/", cep)
+	url := fmt.Sprintf("%s/ws/%s/json/", viaCEPBaseURL, cep)
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -113,8 +104,8 @@ func getLocationByCEP(cep string) (string, error) {
 		return "", err
 	}
 
-	if viaCEPResp.Erro || viaCEPResp.CEP == "" {
-		return "", fmt.Errorf("CEP não encontrado")
+	if viaCEPResp.Erro {
+		return "", fmt.Errorf("CEP nao encontrado")
 	}
 
 	return fmt.Sprintf("%s,%s", viaCEPResp.Localidade, viaCEPResp.UF), nil
