@@ -15,7 +15,7 @@ func TestHandleTemperature(t *testing.T) {
 			cep = strings.TrimSuffix(cep, "/json/")
 
 			switch cep {
-			case "99999999":
+			case "11111111":
 				json.NewEncoder(w).Encode(ViaCEPResponse{Erro: true})
 			case "01001000":
 				json.NewEncoder(w).Encode(ViaCEPResponse{
