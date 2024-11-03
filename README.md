@@ -46,7 +46,7 @@ WEATHER_API_KEY=sua_chave_aqui
 ```bash
 go test -v ./...
 ```
-<img scr="/teste_go.jpg">
+![iamgem](teste_go.jpg)
 
 6. Execute localmente:
 ```bash
