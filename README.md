@@ -132,7 +132,7 @@ gcloud run deploy clima-cep \
 #### Erro - CEP Não Encontrado (404 Not Found)
 ```json
 {
-  "message": "ero ao obter localidade"
+  "message": "erro ao obter localidade"
 }
 ```
 
